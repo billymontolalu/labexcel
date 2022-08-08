@@ -1,0 +1,1107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model antri {
+  idantri       Int         @id @default(autoincrement())
+  idruang       Int?
+  idcara_bayar  Int?
+  idpasien      Int?
+  no            String?     @db.VarChar(10)
+  tanggal       DateTime?   @db.Date
+  jenis_layanan String?     @db.VarChar(50)
+  petugas       Int?
+  status        String?     @db.VarChar(40)
+  rujukan       String?     @db.VarChar(50)
+  nosep         String?     @db.VarChar(100)
+  status_bpjs   Int?
+  pesan         String?
+  log           String?     @db.VarChar(1000)
+  waktu_antrian Int?
+  pasien        pasien?     @relation(fields: [idpasien], references: [idpasien], onDelete: Restrict, onUpdate: Restrict, map: "FK_RELATIONSHIP_21")
+  ruang         ruang?      @relation(fields: [idruang], references: [idruang], onDelete: Restrict, onUpdate: Restrict, map: "FK_RELATIONSHIP_22")
+  cara_bayar    cara_bayar? @relation(fields: [idcara_bayar], references: [idcara_bayar], onDelete: Restrict, onUpdate: Restrict, map: "FK_RELATIONSHIP_23")
+
+  @@index([idpasien], map: "FK_RELATIONSHIP_21")
+  @@index([idruang], map: "FK_RELATIONSHIP_22")
+  @@index([idcara_bayar], map: "FK_RELATIONSHIP_23")
+}
+
+model asal_pasien {
+  idasal_pasien Int     @id @default(autoincrement())
+  keterangan    String? @db.VarChar(50)
+}
+
+model biaya_lain {
+  idbiaya_lain                            Int      @id @default(autoincrement())
+  idinvoice                               Int?
+  iddokter                                Int?
+  idpetugas_1                             Int?
+  idpetugas_2                             Int?
+  idpetugas_3                             Int?
+  nama_biaya                              String?  @db.VarChar(100)
+  tarif                                   Int?
+  dokter                                  dokter?  @relation(fields: [iddokter], references: [iddokter], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_dokter")
+  invoice                                 invoice? @relation(fields: [idinvoice], references: [idinvoice], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_invoice")
+  petugas_biaya_lain_idpetugas_1Topetugas petugas? @relation("biaya_lain_idpetugas_1Topetugas", fields: [idpetugas_1], references: [idpetugas], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_petugas")
+  petugas_biaya_lain_idpetugas_2Topetugas petugas? @relation("biaya_lain_idpetugas_2Topetugas", fields: [idpetugas_2], references: [idpetugas], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_petugas_2")
+  petugas_biaya_lain_idpetugas_3Topetugas petugas? @relation("biaya_lain_idpetugas_3Topetugas", fields: [idpetugas_3], references: [idpetugas], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_petugas_3")
+
+  @@index([iddokter], map: "iddokter")
+  @@index([idinvoice], map: "idinvoice")
+  @@index([idpetugas_1], map: "idpetugas_1")
+  @@index([idpetugas_2], map: "idpetugas_2")
+  @@index([idpetugas_3], map: "idpetugas_3")
+}
+
+model biaya_lain_laboratorium {
+  idbiaya_lain_laboratorium                            Int                   @id @default(autoincrement())
+  idinvoice_laboratorium                               Int?
+  iddokter                                             Int?
+  idpetugas_1                                          Int?
+  idpetugas_2                                          Int?
+  idpetugas_3                                          Int?
+  nama_biaya                                           String?               @db.VarChar(100)
+  tarif                                                Int?
+  dokter                                               dokter?               @relation(fields: [iddokter], references: [iddokter], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_laboratorium_dokter")
+  invoice_laboratorium                                 invoice_laboratorium? @relation(fields: [idinvoice_laboratorium], references: [idinvoice_laboratorium], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_laboratorium_invoice")
+  petugas_biaya_lain_laboratorium_idpetugas_1Topetugas petugas?              @relation("biaya_lain_laboratorium_idpetugas_1Topetugas", fields: [idpetugas_1], references: [idpetugas], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_laboratorium_petugas")
+  petugas_biaya_lain_laboratorium_idpetugas_2Topetugas petugas?              @relation("biaya_lain_laboratorium_idpetugas_2Topetugas", fields: [idpetugas_2], references: [idpetugas], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_laboratorium_petugas_2")
+  petugas_biaya_lain_laboratorium_idpetugas_3Topetugas petugas?              @relation("biaya_lain_laboratorium_idpetugas_3Topetugas", fields: [idpetugas_3], references: [idpetugas], onDelete: Restrict, onUpdate: Restrict, map: "FK_biaya_lain_laboratorium_petugas_3")
+
+  @@index([iddokter], map: "iddokter")
+  @@index([idinvoice_laboratorium], map: "idinvoice_laboratorium")
+  @@index([idpetugas_1], map: "idpetugas_1")
+  @@index([idpetugas_2], map: "idpetugas_2")
+  @@index([idpetugas_3], map: "idpetugas_3")
+}
+
+model cara_bayar {
+  idcara_bayar Int     @id @default(autoincrement())
+  kode         String? @db.VarChar(10)
+  arti         String? @db.VarChar(60)
+  antri        antri[]
+}
+
+model chat {
+  id                          Int      @id @default(autoincrement())
+  from_chat                   Int      @db.UnsignedInt
+  to_chat                     Int      @db.UnsignedInt
+  tanggal                     DateTime @db.DateTime(0)
+  msg                         String?  @db.Text
+  users_chat_from_chatTousers users    @relation("chat_from_chatTousers", fields: [from_chat], references: [id], onUpdate: Restrict, map: "FK_USER_FROM")
+  users_chat_to_chatTousers   users    @relation("chat_to_chatTousers", fields: [to_chat], references: [id], onUpdate: Restrict, map: "FK_USER_TO")
+
+  @@index([from_chat], map: "from")
+  @@index([to_chat], map: "to")
+}
+
+model ci_sessions {
+  session_id    String @id @default("0") @db.VarChar(40)
+  ip_address    String @default("0") @db.VarChar(45)
+  user_agent    String @db.VarChar(120)
+  last_activity Int    @default(0) @db.UnsignedInt
+  user_data     String @db.Text
+
+  @@index([last_activity], map: "last_activity_idx")
+}
+
+model dokter {
+  iddokter                Int                       @id @default(autoincrement())
+  nama_dokter             String?                   @db.VarChar(100)
+  kodedokter              String?                   @db.VarChar(255)
+  biaya_lain              biaya_lain[]
+  biaya_lain_laboratorium biaya_lain_laboratorium[]
+}
+
+model golongan_pembedahan {
+  idgolongan_pembedahan Int     @id @default(autoincrement())
+  golongan_tindakan     String? @db.VarChar(50)
+}
+
+model group_pemeriksaan {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(255)
+  createdAt            DateTime               @db.DateTime(0)
+  updatedAt            DateTime               @db.DateTime(0)
+  invoice_laboratorium invoice_laboratorium[]
+}
+
+model groups {
+  id           Int            @id @default(autoincrement()) @db.UnsignedMediumInt
+  name         String         @db.VarChar(20)
+  description  String         @db.VarChar(100)
+  users_groups users_groups[]
+}
+
+model hari {
+  id   Int    @id @default(autoincrement())
+  hari String @db.VarChar(50)
+}
+
+model hasil_lab {
+  id                  Int      @id @default(autoincrement())
+  nilaiNormal         Int?
+  invoiceLaboratorium Int?
+  hasil               String?  @db.VarChar(255)
+  createdAt           DateTime @db.DateTime(0)
+  updatedAt           DateTime @db.DateTime(0)
+
+  @@index([invoiceLaboratorium], map: "invoiceLaboratorium")
+  @@index([nilaiNormal], map: "nilaiNormal")
+}
+
+model inbox {
+  inbox_id Int       @id @default(autoincrement())
+  subject  String?   @db.VarChar(250)
+  message  String?   @db.LongText
+  to       Int?
+  from     Int?
+  status   String?   @default("inbox") @db.VarChar(50)
+  is_read  Int?      @default(0)
+  created  DateTime? @db.DateTime(0)
+  files    String?   @db.VarChar(250)
+  to_all   Boolean?
+}
+
+model invoice {
+  idinvoice            Int          @id @default(autoincrement())
+  idpetugas            Int?
+  idpetugas_1          Int?
+  idpetugas_2          Int?
+  idpetugas_3          Int?
+  idkunjungan_kasus    Int?
+  idpasien             Int?
+  idasal_pasien        Int?
+  idrujukke            Int?
+  iddokter             Int?
+  iddokter_onsite      Int?
+  iddokter_onsite2     Int?
+  iddokter_oncall      Int?
+  iddokter_oncall2     Int?
+  iddokter_anestesi    Int?
+  idkode_penyakit      Int?
+  idstatus_keluar      Int?
+  idruang              Int?
+  idcara_bayar         Int?
+  tgl_kunjungan        DateTime?    @db.DateTime(0)
+  tgl_bayar            DateTime?    @db.DateTime(0)
+  tgl_keluar           DateTime?    @db.DateTime(0)
+  tgl_setoran          DateTime?    @db.DateTime(0)
+  no_sep               String?      @db.VarChar(20)
+  hari_perawatan_ke    String?      @db.VarChar(10)
+  kunjungan            String?      @db.VarChar(5)
+  tempat_pelayanan     String?      @db.VarChar(100)
+  ic                   String?      @db.VarChar(10)
+  rujukan_dari         String?      @db.VarChar(50)
+  no_khusus            Int?
+  anamnesa             String?      @db.VarChar(500)
+  anamnesa_2           String?      @db.VarChar(500)
+  anamnesa_3           String?      @db.VarChar(500)
+  pemeriksaan_fisik_1  String?      @db.VarChar(500)
+  pemeriksaan_fisik_2  String?      @db.VarChar(500)
+  pemeriksaan_fisik_3  String?      @db.VarChar(500)
+  penunjang_diagnosa   String?      @db.VarChar(500)
+  diagnosa_kedua       String?      @db.VarChar(500)
+  diagnosa_sekunder    String?      @db.VarChar(500)
+  pemeriksaan_khusus   String?      @db.VarChar(20)
+  advis                String?      @db.VarChar(500)
+  tindakan             String?      @db.VarChar(100)
+  jenis_tx1            String?      @db.VarChar(50)
+  jenis_tx2            String?      @db.VarChar(50)
+  jenis_tx3            String?      @db.VarChar(50)
+  jenis_tx4            String?      @db.VarChar(50)
+  rd1                  String?      @db.VarChar(100)
+  rd2                  String?      @db.VarChar(100)
+  rd3                  String?      @db.VarChar(100)
+  rd4                  String?      @db.VarChar(100)
+  rd5                  String?      @db.VarChar(100)
+  el_cit               String?      @db.VarChar(100)
+  lay_tind_medik       String?      @db.VarChar(30)
+  triage               String?      @db.VarChar(15)
+  golongan_tindakan    String?      @db.VarChar(50)
+  tindakan_gigi_1      String?      @db.VarChar(100)
+  tindakan_gigi_2      String?      @db.VarChar(100)
+  kamar                String?      @db.VarChar(20)
+  buat_puyer           String?      @db.VarChar(500)
+  metode_kb            String?      @db.VarChar(20)
+  peserta_kb_baru      String?      @db.VarChar(30)
+  dirujuk_dengan       String?      @db.VarChar(50)
+  keluhan_efek_samping String?      @db.VarChar(30)
+  kegiatan_kebid       String?      @db.VarChar(50)
+  salin_komplikasi     String?      @db.VarChar(50)
+  peri                 String?      @db.VarChar(50)
+  peri_lahir_hidup     String?      @db.VarChar(50)
+  peri_mati            String?      @db.VarChar(50)
+  peri_sebab_mati      String?      @db.VarChar(50)
+  pemeriksaan_lain     String?      @db.VarChar(500)
+  retribusi_ambulance  Float?       @default(0) @db.Float
+  retribusi_oksigen    Float?       @default(0) @db.Float
+  status               String?      @db.VarChar(40)
+  tanggal_meninggal    DateTime?    @db.DateTime(0)
+  uraian_kematian      String?      @db.VarChar(500)
+  sebab_kematian       String?      @db.VarChar(100)
+  status_obat          Int?
+  biaya_lain           biaya_lain[]
+
+  @@index([idruang], map: "FK_RELATIONSHIP_10")
+  @@index([idkode_penyakit], map: "FK_RELATIONSHIP_12")
+  @@index([iddokter], map: "FK_RELATIONSHIP_14")
+  @@index([idpetugas], map: "FK_RELATIONSHIP_15")
+  @@index([idkunjungan_kasus], map: "FK_RELATIONSHIP_16")
+  @@index([idasal_pasien], map: "FK_RELATIONSHIP_17")
+  @@index([idrujukke], map: "FK_RELATIONSHIP_18")
+  @@index([iddokter_onsite], map: "FK_RELATIONSHIP_24")
+  @@index([iddokter_onsite2], map: "FK_RELATIONSHIP_25")
+  @@index([iddokter_oncall], map: "FK_RELATIONSHIP_26")
+  @@index([iddokter_oncall2], map: "FK_RELATIONSHIP_27")
+  @@index([iddokter_anestesi], map: "FK_RELATIONSHIP_28")
+  @@index([idpetugas_1], map: "FK_RELATIONSHIP_37")
+  @@index([idpetugas_2], map: "FK_RELATIONSHIP_38")
+  @@index([idpetugas_3], map: "FK_RELATIONSHIP_39")
+  @@index([idpasien], map: "FK_RELATIONSHIP_6")
+  @@index([idstatus_keluar], map: "FK_RELATIONSHIP_8")
+  @@index([idcara_bayar], map: "FK_RELATIONSHIP_9")
+}
+
+model invoice_laboratorium {
+  idinvoice_laboratorium                                    Int                       @id @default(autoincrement())
+  idpasien                                                  Int?
+  idcara_bayar                                              Int?
+  idpetugas                                                 Int?
+  iddokter                                                  Int?
+  group_pemeriksaan                                         Int?
+  tgl_pemeriksaan                                           DateTime?                 @db.DateTime(0)
+  tgl_bayar                                                 DateTime?                 @db.DateTime(0)
+  tgl_setoran                                               DateTime?                 @db.DateTime(0)
+  status_bayar                                              String?                   @db.VarChar(50)
+  dari_ruang                                                String?                   @db.VarChar(100)
+  rjk_dari                                                  String?                   @db.VarChar(100)
+  dokter_pengirim                                           String?                   @db.VarChar(100)
+  group_pemeriksaan_group_pemeriksaanToinvoice_laboratorium group_pemeriksaan?        @relation(fields: [group_pemeriksaan], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_GROUP_PEMERIKSAAN")
+  biaya_lain_laboratorium                                   biaya_lain_laboratorium[]
+
+  @@unique([idpasien, tgl_pemeriksaan], map: "idpasien_tgl_pemeriksaan")
+  @@index([idpasien], map: "FK_RELATIONSHIP_30")
+  @@index([idcara_bayar], map: "FK_RELATIONSHIP_31")
+  @@index([idpetugas], map: "FK_RELATIONSHIP_66")
+  @@index([group_pemeriksaan], map: "group_pemeriksaan")
+  @@index([iddokter], map: "iddokter")
+}
+
+model invoice_obat {
+  idinvoice_obat Int     @id @default(autoincrement())
+  idinvoice      Int?
+  idobat         Int?
+  jumlah_obat    Int?
+  aturan_pakai   String? @db.VarChar(500)
+
+  @@index([idinvoice], map: "FK_RELATIONSHIP_19")
+  @@index([idobat], map: "FK_RELATIONSHIP_20")
+}
+
+model ispa_diare {
+  idispa_diare         Int       @id @default(autoincrement())
+  idpetugas            Int?
+  idruang              Int?
+  idstatus_keluar      Int?
+  idpasien             Int?
+  tgl_kunjungan        DateTime? @db.DateTime(0)
+  jenis_pemeriksaan    String?   @db.VarChar(50)
+  bb                   Float?    @db.Float
+  suhu                 String?   @db.VarChar(10)
+  nafas                Float?    @db.Float
+  bab                  Float?    @db.Float
+  zink                 Boolean?
+  dosis_zink           String?   @db.VarChar(20)
+  der_dehidrasi        String?   @db.VarChar(20)
+  mendapat_oralit      Boolean?
+  jumlah_oralit        Float?    @db.Float
+  infus_rl             Float?    @db.Float
+  tarikan_dinding_dada Boolean?
+  cuping_hidung        Boolean?
+  antibiotik           Boolean?
+  penurun_panas        Boolean?
+  ispa                 Boolean?
+  pneumonia            Boolean?
+  derajat              String?   @db.VarChar(20)
+  rujukan_dari         String?   @db.VarChar(50)
+  tgl_keluar           DateTime? @db.DateTime(0)
+
+  @@index([idpasien], map: "FK_RELATIONSHIP_62")
+  @@index([idpetugas], map: "FK_RELATIONSHIP_63")
+  @@index([idruang], map: "FK_RELATIONSHIP_64")
+  @@index([idstatus_keluar], map: "FK_RELATIONSHIP_65")
+}
+
+model jadwal {
+  id        Int      @id @default(autoincrement())
+  iddokter  Int?
+  idruang   Int?
+  kapasitas Int?
+  hari      Int?
+  jam       String?  @db.VarChar(255)
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+
+  @@index([iddokter], map: "iddokter")
+  @@index([idruang], map: "idruang")
+}
+
+model jadwal_operasi {
+  id             Int      @id @default(autoincrement())
+  idruang        Int
+  idpasien       Int
+  kodebooking    String   @db.VarChar(10)
+  tanggaloperasi DateTime @db.Date
+  jenistindakan  String?  @db.VarChar(50)
+  terlaksana     Int?     @db.TinyInt
+  pasien         pasien   @relation(fields: [idpasien], references: [idpasien], onDelete: NoAction, onUpdate: NoAction, map: "FK__pasien")
+  ruang          ruang    @relation(fields: [idruang], references: [idruang], onDelete: NoAction, onUpdate: NoAction, map: "FK__ruang")
+
+  @@index([idpasien], map: "idpasien")
+  @@index([idruang], map: "idruang")
+}
+
+model jadwal_transaksi {
+  id              Int       @id @default(autoincrement())
+  tanggal         DateTime? @db.Date
+  idjadwal        Int?
+  totalantrean    Int?
+  sisaantrean     Int?
+  antreanpanggil  String?   @db.VarChar(255)
+  sisakuotajkn    Int?
+  kuotajkn        Int?
+  kuotanonjkn     Int?
+  sisakuotanonjkn Int?
+  isclosed        Boolean?
+  createdAt       DateTime  @db.DateTime(0)
+  updatedAt       DateTime  @db.DateTime(0)
+
+  @@index([idjadwal], map: "idjadwal")
+}
+
+model jenis_pemeriksaan {
+  idjenis_pemeriksaan Int     @id @default(autoincrement())
+  kode                String? @db.VarChar(10)
+  uraian              String? @db.VarChar(100)
+  pemeriksaan         String? @db.VarChar(200)
+  nilai_normal        String? @db.VarChar(300)
+  tarif               Float?  @db.Float
+}
+
+model kamar {
+  idkamar Int     @id @default(autoincrement())
+  ruang   String? @db.VarChar(20)
+}
+
+model kategori_obat {
+  idkategori_obat Int     @id @default(autoincrement())
+  kategori        String? @db.VarChar(40)
+}
+
+model kegiatan_kebid_komplikasi {
+  idkegiatan_kebid_komplikasi Int     @id @default(autoincrement())
+  jenis_kegiatan              String? @db.VarChar(50)
+}
+
+model kegiatan_kebidanan {
+  idkegiatan_kebidanan Int     @id @default(autoincrement())
+  jenis_kegiatan       String? @db.VarChar(50)
+}
+
+model kegiatan_peri_kelahiran {
+  idkegiatan_peri_kelahiran Int     @id @default(autoincrement())
+  jenis_kegiatan            String? @db.VarChar(50)
+}
+
+model kegiatan_peri_kematian {
+  idkegiatan_peri_kematian Int     @id @default(autoincrement())
+  jenis_kegiatan           String? @db.VarChar(50)
+}
+
+model kegiatan_peri_sebab_mati {
+  idkegiatan_peri_sebab_mati Int     @id @default(autoincrement())
+  jenis_kegiatan             String? @db.VarChar(50)
+}
+
+model kegiatan_perinatologi {
+  idkegiatan_perinatologi Int     @id @default(autoincrement())
+  jenis_kegiatan          String? @db.VarChar(50)
+}
+
+model kegiatan_radiologi {
+  idkegiatan_radiologi Int     @id @default(autoincrement())
+  jenis_kegiatan       String? @db.VarChar(50)
+}
+
+model keluar_masuk {
+  idkeluar_masuk      Int                @id @default(autoincrement())
+  idpersediaan_keluar Int?
+  idpersediaan_masuk  Int?
+  persediaan_keluar   persediaan_keluar? @relation(fields: [idpersediaan_keluar], references: [idpersediaan_keluar], onDelete: NoAction, onUpdate: NoAction, map: "FK_KELUAR_KELUAR")
+  persediaan_masuk    persediaan_masuk?  @relation(fields: [idpersediaan_masuk], references: [idpersediaan_masuk], onDelete: NoAction, onUpdate: NoAction, map: "FK_MASUK_MASUK")
+
+  @@index([idpersediaan_keluar], map: "idpersediaan_keluar")
+  @@index([idpersediaan_masuk], map: "idpersediaan_masuk")
+}
+
+model keluhan_kb {
+  idkeluhan_kb         Int     @id @default(autoincrement())
+  keluhan_efek_samping String? @db.VarChar(30)
+}
+
+model kepatuhan {
+  idkepatuhan  Int       @id @default(autoincrement())
+  tanggal      DateTime? @db.DateTime(0)
+  idruang      Int?
+  idpasien     Int?
+  gelang       String?   @db.VarChar(50)
+  remark       String?   @db.VarChar(250)
+  created_date DateTime? @db.DateTime(0)
+  created_by   Int       @db.UnsignedInt
+
+  @@index([idpasien], map: "FK_kepatuhan_pasien")
+  @@index([idruang], map: "FK_kepatuhan_ruang")
+  @@index([created_by], map: "FK_kepatuhan_users")
+}
+
+model kepatuhan_obat {
+  idkepatuhan_obat Int       @id @default(autoincrement())
+  tanggal          DateTime? @db.DateTime(0)
+  idobat           Int?
+  alert            String?   @db.VarChar(50)
+  keterangan       String?   @db.VarChar(250)
+  created_date     DateTime? @db.DateTime(0)
+  created_by       Int       @db.UnsignedInt
+
+  @@index([idobat], map: "FK_kepatuhan_obat_obat")
+  @@index([created_by], map: "FK_kepatuhan_obat_users")
+}
+
+model kode_penyakit {
+  idkode_penyakit Int     @id @default(autoincrement())
+  kode_dx         String? @db.VarChar(10)
+  kode_icdx       String? @db.VarChar(10)
+  nama_penyakit   String? @db.VarChar(200)
+  kelompok        String? @db.VarChar(50)
+  kode            String? @db.VarChar(10)
+}
+
+model komplain {
+  idkomplain     Int              @id @default(autoincrement())
+  iduser         Int?             @db.UnsignedInt
+  tanggal        DateTime?        @db.DateTime(0)
+  judul          String?          @db.VarChar(200)
+  isi_komplain   String?          @db.Text
+  status         String?          @db.VarChar(50)
+  komplain_balas komplain_balas[]
+
+  @@index([iduser], map: "FK__users")
+}
+
+model komplain_balas {
+  idkomplain_balas Int       @id @default(autoincrement())
+  idkomplain       Int?
+  iduser           Int?      @db.UnsignedInt
+  tanggal          DateTime? @db.DateTime(0)
+  isi_balasan      String?   @db.Text
+  komplain         komplain? @relation(fields: [idkomplain], references: [idkomplain], onDelete: Cascade, map: "FK__komplain")
+  users            users?    @relation(fields: [iduser], references: [id], onDelete: Cascade, map: "FK_komplain_balas_users")
+
+  @@index([idkomplain], map: "FK__komplain")
+  @@index([iduser], map: "FK_komplain_balas_users")
+}
+
+model konfigurasi {
+  idkonfigurasi    Int     @id @default(autoincrement())
+  kode_konfigurasi String? @db.VarChar(50)
+  nilai            Float?  @db.Float
+  keterangan       String? @db.VarChar(500)
+}
+
+model kunjungan_kasus {
+  idkunjungan_kasus Int     @id @default(autoincrement())
+  kode              String? @db.VarChar(10)
+  arti              String? @db.VarChar(60)
+}
+
+model layanan_pembedahan {
+  idlayanan_pembedahan Int     @id @default(autoincrement())
+  tempat_pelayanan     String? @db.VarChar(100)
+}
+
+model layanan_rawat_inap {
+  idlayananri      Int     @id @default(autoincrement())
+  tempat_pelayanan String? @db.VarChar(100)
+}
+
+model layanan_rawat_jalan {
+  idlayananrj      Int     @id @default(autoincrement())
+  tempat_pelayanan String? @db.VarChar(100)
+}
+
+model layanan_tindakan_medik {
+  idlayanan Int     @id @default(autoincrement())
+  kategori  String? @db.VarChar(40)
+}
+
+model logantri {
+  id       Int       @id @default(autoincrement())
+  no       Int?
+  ambil    DateTime?
+  dilayani DateTime?
+  loketId  Int?
+  loket    loket?    @relation(fields: [loketId], references: [id], map: "Logantri_loketId_fkey")
+
+  @@index([loketId], map: "Logantri_loketId_fkey")
+}
+
+model login_attempts {
+  id         Int    @id @default(autoincrement()) @db.UnsignedInt
+  ip_address Bytes  @db.VarBinary(16)
+  login      String @db.VarChar(100)
+  time       Int?   @db.UnsignedInt
+}
+
+model loket {
+  id        Int        @id @default(autoincrement())
+  tanggal   DateTime?  @db.Date
+  no        Int?
+  dipanggil Int?
+  logantri  logantri[]
+}
+
+model metode_kb {
+  idmetode_kb Int     @id @default(autoincrement())
+  metode      String? @db.VarChar(20)
+}
+
+model nilai_normal {
+  id               Int      @id @default(autoincrement())
+  name             String?  @db.VarChar(255)
+  min              Float?   @db.Float
+  max              Float?   @db.Float
+  satuan           String?  @db.VarChar(255)
+  groupPemeriksaan Int?
+  createdAt        DateTime @db.DateTime(0)
+  updatedAt        DateTime @db.DateTime(0)
+
+  @@index([groupPemeriksaan], map: "FK_nilai_normal_group_pemeriksaan")
+}
+
+model nota_obat {
+  idnota_obat      Int       @id @default(autoincrement())
+  idpasien         Int?
+  idruang          Int?
+  iddokter         Int?
+  idcara_bayar     Int?
+  idsupplier       Int?
+  no_bukti         String?   @db.VarChar(150)
+  tanggal          DateTime? @db.Date
+  tanggal_bayar    DateTime? @db.Date
+  tgl_setoran      DateTime? @db.Date
+  jenis_transaksi  Int?
+  jasa_resep       Float?    @db.Float
+  status           String?   @default("BELUM LUNAS") @db.VarChar(15)
+  keterangan       String?   @db.VarChar(500)
+  created_by       Int?
+  invoiceIdinvoice Int?
+
+  @@index([idcara_bayar], map: "FK_IDCARA_BAYAR_NOTA_OBAT")
+  @@index([iddokter], map: "FK_IDDOKTER_NOTA_OBAT")
+  @@index([idruang], map: "FK_IDRUANG_NOTA_OBAT")
+  @@index([idpasien], map: "FK_RELATIONSHIP_44")
+  @@index([idsupplier], map: "FK_RELATIONSHIP_55")
+  @@index([invoiceIdinvoice], map: "nota_obat_invoiceIdinvoice_fkey")
+}
+
+model notif {
+  id        Int      @id @default(autoincrement())
+  from_chat Int?     @db.UnsignedInt
+  to_chat   Int?     @db.UnsignedInt
+  msg       String   @db.Text
+  tanggal   DateTime @db.DateTime(0)
+  isread    Int      @db.TinyInt
+
+  @@index([from_chat], map: "from_chat")
+  @@index([to_chat], map: "to_chat")
+}
+
+model obat {
+  idobat          Int     @id @default(autoincrement())
+  idkategori_obat Int?
+  kode            String? @db.VarChar(10)
+  nama_obat       String? @db.VarChar(100)
+  kls_terapi      String? @db.VarChar(50)
+  sing            String? @db.VarChar(40)
+  urut            Int?
+  stock           stock[]
+
+  @@index([idkategori_obat], map: "FK_RELATIONSHIP_53")
+}
+
+model oksigen {
+  id        Int       @id @default(autoincrement())
+  idinvoice Int
+  kecepatan String    @db.VarChar(10)
+  start     DateTime? @db.DateTime(0)
+  berakhir  DateTime? @db.DateTime(0)
+  harga     String    @db.VarChar(10)
+}
+
+model outbox {
+  outbox_id Int       @id @default(autoincrement())
+  subject   String?   @db.VarChar(250)
+  message   String?   @db.LongText
+  to        Int?
+  from      Int?
+  status    String?   @default("outbox") @db.VarChar(50)
+  created   DateTime? @db.DateTime(0)
+  reply_to  Int?
+  files     String?   @db.VarChar(250)
+  to_all    Boolean?
+}
+
+model pasien {
+  idpasien                       Int              @id @default(autoincrement())
+  idpekerjaan                    Int?
+  idpendidikan                   Int?
+  idcara_bayar                   Int?
+  no_reg                         String?          @db.VarChar(50)
+  nama_penderita                 String?          @db.VarChar(100)
+  nama_kk                        String?          @db.VarChar(100)
+  kode_wilayah                   String?          @db.VarChar(10)
+  kota                           String?          @db.VarChar(500)
+  kecamatan                      String?          @db.VarChar(50)
+  desa                           String?          @db.VarChar(50)
+  dusun_rt_rw                    String?          @db.VarChar(300)
+  tgl_lahir                      DateTime?        @db.Date
+  jenis_kelamin                  String?          @db.VarChar(1)
+  catatan_nomor                  String?          @db.VarChar(200)
+  catatan                        String?          @db.VarChar(500)
+  tgl_daftar                     DateTime?        @db.Date
+  no_induk_keluarga              String?          @db.VarChar(50)
+  golongan_darah                 String?          @db.VarChar(4)
+  daf_op_katarak_mata_kanan      String?          @db.VarChar(20)
+  daf_op_katarak_mata_kiri       String?          @db.VarChar(20)
+  daf_op_katarak_mata_kanan_kiri String?          @db.VarChar(20)
+  realisasi_kanan                String?          @db.VarChar(20)
+  realisasi_kiri                 String?          @db.VarChar(20)
+  tgl_dioperasi_kanan            DateTime?        @db.DateTime(0)
+  tgl_dioperasi_kiri             DateTime?        @db.DateTime(0)
+  iol_kacamata_kanan             String?          @db.VarChar(20)
+  iol_kacamata_kiri              String?          @db.VarChar(20)
+  petugas                        Int?
+  sidik_jari                     String?          @db.Text
+  telp                           String?          @db.VarChar(50)
+  isbpjs                         Int?             @db.TinyInt
+  antri                          antri[]
+  jadwal_operasi                 jadwal_operasi[]
+
+  @@index([idcara_bayar], map: "FK_PASIEN_CARA_BAYAR")
+  @@index([idpendidikan], map: "FK_RELATIONSHIP_1")
+  @@index([idpekerjaan], map: "FK_RELATIONSHIP_2")
+}
+
+model pekerjaan {
+  idpekerjaan    Int     @id @default(autoincrement())
+  nama_pekerjaan String? @db.VarChar(50)
+}
+
+model pemeriksaan {
+  idpemeriksaan          Int     @id @default(autoincrement())
+  idinvoice_laboratorium Int?
+  idjenis_pemeriksaan    Int?
+  hasil_pemeriksaan      String? @db.VarChar(500)
+  harga                  Float?  @db.Float
+  detil                  String? @db.VarChar(2000)
+
+  @@index([idinvoice_laboratorium], map: "FK_RELATIONSHIP_28")
+  @@index([idjenis_pemeriksaan], map: "FK_RELATIONSHIP_32")
+}
+
+model pendidikan {
+  idpendidikan    Int     @id @default(autoincrement())
+  nama_pendidikan String? @db.VarChar(100)
+}
+
+model pengumuman {
+  id  Int     @id @default(autoincrement())
+  isi String? @db.VarChar(2000)
+}
+
+model persediaan_keluar {
+  idpersediaan_keluar Int            @id @default(autoincrement())
+  idpersediaan_masuk  Int?
+  idnota_obat         Int?
+  idruang             Int?
+  idobat              Int?
+  idsumber_dana       Int?
+  jenis_transaksi     Int?
+  jumlah              Float?         @db.Float
+  harga_dasar         Float?         @db.Float
+  harga_jual          Float?         @db.Float
+  sudah               Int?           @default(0)
+  locked              Int?           @default(0)
+  sisa                Float?         @db.Float
+  keluar_masuk        keluar_masuk[]
+
+  @@index([idobat], map: "FK_RELATIONSHIP_40")
+  @@index([idsumber_dana], map: "FK_RELATIONSHIP_42")
+  @@index([idnota_obat], map: "FK_RELATIONSHIP_45")
+  @@index([idruang], map: "FK_RELATIONSHIP_47")
+  @@index([idpersediaan_masuk], map: "idpersediaan_masuk")
+}
+
+model persediaan_keluarx {
+  idpersediaan_keluar Int    @id @default(autoincrement())
+  idpersediaan_masuk  Int?
+  idnota_obat         Int?
+  idruang             Int?
+  idobat              Int?
+  idsumber_dana       Int?
+  jenis_transaksi     Int?
+  jumlah              Float? @db.Float
+  harga_dasar         Float? @db.Float
+  harga_jual          Float? @db.Float
+
+  @@index([idobat], map: "FK_RELATIONSHIP_40x")
+  @@index([idsumber_dana], map: "FK_RELATIONSHIP_42x")
+  @@index([idnota_obat], map: "FK_RELATIONSHIP_45x")
+  @@index([idruang], map: "FK_RELATIONSHIP_47x")
+  @@index([idpersediaan_masuk], map: "idpersediaan_masuk")
+}
+
+model persediaan_masuk {
+  idpersediaan_masuk  Int            @id @default(autoincrement())
+  idruang             Int?
+  idobat              Int?
+  idsumber_dana       Int?
+  idnota_obat         Int?
+  idsupplier          Int?
+  idpersediaan_keluar Int?
+  jumlah              Float?         @db.Float
+  stok_akhir          Float?         @db.Float
+  harga_non_ppn       Float?         @db.Float
+  harga               Float?         @db.Float
+  ppn                 Float?         @db.Float
+  diskon_persen       Float?         @db.Float
+  diskon_rupiah       Float?         @db.Float
+  no_dokumen          String?        @db.VarChar(150)
+  no_bukti            String?        @db.VarChar(150)
+  batch               String?        @db.VarChar(50)
+  tanggal_buku        DateTime?      @db.Date
+  tanggal_dokumen     DateTime?      @db.Date
+  tanggal_expired     DateTime?      @db.Date
+  tanggal_jatuh_tempo DateTime?      @db.Date
+  tanggal_bayar       DateTime?      @db.Date
+  jenis_transaksi     Int?
+  keterangan          String?        @db.VarChar(500)
+  suplier             String?        @db.VarChar(50)
+  created_by          Int?
+  created_date        DateTime?      @db.Date
+  deleted             Int?           @default(0)
+  locked              Int?
+  sisa                Float?         @db.Float
+  tanggal_perolehan   DateTime?      @db.Date
+  keluar_masuk        keluar_masuk[]
+
+  @@index([idsumber_dana], map: "FK_RELATIONSHIP_41")
+  @@index([idobat], map: "FK_RELATIONSHIP_43")
+  @@index([idruang], map: "FK_RELATIONSHIP_46")
+  @@index([idnota_obat], map: "FK_RELATIONSHIP_48")
+  @@index([idsupplier], map: "FK_RELATIONSHIP_52")
+  @@index([idpersediaan_keluar], map: "idpersediaan_keluar")
+}
+
+model persediaan_masukx {
+  idpersediaan_masuk  Int       @id @default(autoincrement())
+  idruang             Int?
+  idobat              Int?
+  idsumber_dana       Int?
+  idnota_obat         Int?
+  idsupplier          Int?
+  jumlah              Float?    @db.Float
+  stok_akhir          Float?    @db.Float
+  harga_non_ppn       Float?    @db.Float
+  harga               Float?    @db.Float
+  ppn                 Float?    @db.Float
+  diskon_persen       Float?    @db.Float
+  diskon_rupiah       Float?    @db.Float
+  no_dokumen          String?   @db.VarChar(150)
+  no_bukti            String?   @db.VarChar(150)
+  batch               String?   @db.VarChar(50)
+  tanggal_buku        DateTime? @db.Date
+  tanggal_dokumen     DateTime? @db.Date
+  tanggal_expired     DateTime? @db.Date
+  tanggal_jatuh_tempo DateTime? @db.Date
+  tanggal_bayar       DateTime? @db.Date
+  jenis_transaksi     Int?
+  keterangan          String?   @db.VarChar(500)
+  suplier             String?   @db.VarChar(50)
+  created_by          Int?
+  created_date        DateTime? @db.Date
+
+  @@index([idsumber_dana], map: "FK_RELATIONSHIP_41x")
+  @@index([idobat], map: "FK_RELATIONSHIP_43x")
+  @@index([idruang], map: "FK_RELATIONSHIP_46x")
+  @@index([idnota_obat], map: "FK_RELATIONSHIP_48x")
+  @@index([idsupplier], map: "FK_RELATIONSHIP_52x")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model pesan_popup {
+  id    Int?
+  pesan String? @db.TinyText
+  file  String? @db.TinyText
+
+  @@ignore
+}
+
+model peserta_kb_baru {
+  idpeserta_kb_baru Int     @id @default(autoincrement())
+  datang_dengan     String? @db.VarChar(30)
+}
+
+model petugas {
+  idpetugas                                                            Int                       @id @default(autoincrement())
+  kode_petugas                                                         String?                   @unique(map: "kode_petugas") @db.VarChar(20)
+  nama_petugas                                                         String?                   @db.VarChar(50)
+  biaya_lain_biaya_lain_idpetugas_1Topetugas                           biaya_lain[]              @relation("biaya_lain_idpetugas_1Topetugas")
+  biaya_lain_biaya_lain_idpetugas_2Topetugas                           biaya_lain[]              @relation("biaya_lain_idpetugas_2Topetugas")
+  biaya_lain_biaya_lain_idpetugas_3Topetugas                           biaya_lain[]              @relation("biaya_lain_idpetugas_3Topetugas")
+  biaya_lain_laboratorium_biaya_lain_laboratorium_idpetugas_1Topetugas biaya_lain_laboratorium[] @relation("biaya_lain_laboratorium_idpetugas_1Topetugas")
+  biaya_lain_laboratorium_biaya_lain_laboratorium_idpetugas_2Topetugas biaya_lain_laboratorium[] @relation("biaya_lain_laboratorium_idpetugas_2Topetugas")
+  biaya_lain_laboratorium_biaya_lain_laboratorium_idpetugas_3Topetugas biaya_lain_laboratorium[] @relation("biaya_lain_laboratorium_idpetugas_3Topetugas")
+}
+
+model readback {
+  idreadback   Int       @id @default(autoincrement())
+  tanggal      DateTime? @db.DateTime(0)
+  idruang      Int?
+  idpasien     Int?
+  konsultasi   String?   @db.VarChar(250)
+  jam          String?   @map("24_jam") @db.VarChar(50)
+  created_date DateTime? @db.DateTime(0)
+  created_by   Int       @db.UnsignedInt
+
+  @@index([idpasien], map: "FK_readback_pasien")
+  @@index([idruang], map: "FK_readback_ruang")
+  @@index([created_by], map: "FK_readback_users")
+}
+
+model retribusi {
+  idretribusi Int    @id @default(autoincrement())
+  idtindakan  Int?
+  idinvoice   Int?
+  iddokter    Int?
+  idpetugas_1 Int?
+  idpetugas_2 Int?
+  idpetugas_3 Int?
+  harga       Float? @db.Float
+  js          Float? @db.Float
+  jp          Float? @db.Float
+  bba         Float? @db.Float
+  filter      Float? @db.Float
+
+  @@index([idinvoice], map: "FK_RELATIONSHIP_11")
+  @@index([iddokter], map: "FK_RELATIONSHIP_33")
+  @@index([idpetugas_1], map: "FK_RELATIONSHIP_34")
+  @@index([idpetugas_2], map: "FK_RELATIONSHIP_35")
+  @@index([idpetugas_3], map: "FK_RELATIONSHIP_36")
+  @@index([idtindakan], map: "FK_RELATIONSHIP_5")
+}
+
+model retribusi_lab {
+  idretribusi_lab        Int    @id @default(autoincrement())
+  idtindakan             Int?
+  idinvoice_laboratorium Int?
+  iddokter               Int?
+  idpetugas_1            Int?
+  idpetugas_2            Int?
+  idpetugas_3            Int?
+  harga                  Float? @db.Float
+  js                     Float? @db.Float
+  jp                     Float? @db.Float
+  bba                    Float? @db.Float
+  filter                 Float? @db.Float
+
+  @@index([idinvoice_laboratorium], map: "FK_RELATIONSHIP_11")
+  @@index([iddokter], map: "FK_RELATIONSHIP_33")
+  @@index([idpetugas_1], map: "FK_RELATIONSHIP_34")
+  @@index([idpetugas_2], map: "FK_RELATIONSHIP_35")
+  @@index([idpetugas_3], map: "FK_RELATIONSHIP_36")
+  @@index([idtindakan], map: "FK_RELATIONSHIP_5")
+}
+
+model review {
+  id      Int       @id @default(autoincrement())
+  isi     String?   @db.Text
+  tanggal DateTime? @db.DateTime(0)
+}
+
+model ruang {
+  idruang        Int              @id @default(autoincrement())
+  kode_ruang     String           @db.VarChar(10)
+  nama_ruang     String           @db.VarChar(50)
+  bpjs           String?          @db.VarChar(50)
+  nama_bpjs      String?
+  isinap         Int?             @default(0)
+  ispenunjang    Int?
+  antri          antri[]
+  jadwal_operasi jadwal_operasi[]
+  stock          stock[]
+}
+
+model rujuk_ke {
+  idrujukke Int     @id @default(autoincrement())
+  rujuk_ke  String? @db.VarChar(50)
+}
+
+model sampah_medis {
+  idsampah_medis    Int       @id @default(autoincrement())
+  tanggal_kunjungan DateTime? @db.Date
+  tanggal_setoran   DateTime? @db.Date
+  nama_pelanggan    String?   @db.VarChar(100)
+  jenis_pelanggan   Int?
+  jumlah            Float?    @db.Float
+  tarip             Float?    @db.Float
+  js                Float?    @db.Float
+  jp                Float?    @db.Float
+  bba               Float?    @db.Float
+}
+
+model sequelizemeta {
+  name String @id @unique(map: "name") @db.VarChar(255)
+}
+
+model setting {
+  id    Int     @id @default(autoincrement())
+  name  String? @db.VarChar(50)
+  value String? @db.VarChar(50)
+}
+
+model status_keluar_pasien {
+  idstatus_keluar Int     @id @default(autoincrement())
+  status_keluar   String? @db.VarChar(300)
+  keluarrs        Int?    @default(0)
+}
+
+model stock {
+  id            BigInt       @id @default(autoincrement())
+  idobat        Int?
+  idsumber_dana Int?
+  idruang       Int?
+  tanggal       DateTime?    @db.Date
+  stok          Float?       @db.Float
+  harga         Float?       @db.Float
+  obat          obat?        @relation(fields: [idobat], references: [idobat], onDelete: NoAction, onUpdate: NoAction, map: "FK_STOCK_OBAT")
+  ruang         ruang?       @relation(fields: [idruang], references: [idruang], onDelete: NoAction, onUpdate: NoAction, map: "FK_STOCK_RUANG")
+  sumber_dana   sumber_dana? @relation(fields: [idsumber_dana], references: [idsumber_dana], onDelete: NoAction, onUpdate: NoAction, map: "FK_STOCK_SUMBER_DANA")
+
+  @@index([idobat], map: "FK_STOCK_OBAT")
+  @@index([idruang], map: "FK_STOCK_RUANG")
+  @@index([idsumber_dana], map: "FK_STOCK_SUMBER_DANA")
+}
+
+model sumber_dana {
+  idsumber_dana Int     @id @default(autoincrement())
+  nama_sumber   String? @db.VarChar(100)
+  stock         stock[]
+}
+
+model supplier {
+  idsupplier    Int     @id @default(autoincrement())
+  nama_supplier String? @db.VarChar(200)
+  keterangan    String? @db.VarChar(500)
+}
+
+model tindakan {
+  idtindakan Int     @id @default(autoincrement())
+  idbpjs     Int?
+  tindakan   String? @db.VarChar(300)
+  tarip      Int?
+  kategori   String? @db.VarChar(40)
+  js         Int?
+  jp         Int?
+  bba        Int?
+  filter     Int?
+  kelompok   String? @db.VarChar(50)
+  spesialis  String? @db.VarChar(50)
+  enable     Int?
+
+  @@index([idbpjs], map: "idbpjs")
+}
+
+model tindakan_alternatif {
+  idtindakan_alternatif Int     @id @default(autoincrement())
+  jenis_tindakan        String? @db.VarChar(50)
+}
+
+model tindakan_gigi {
+  idtindakan_gigi Int     @id @default(autoincrement())
+  tindakan        String? @db.VarChar(100)
+}
+
+model tindakan_operatif {
+  idtindakan_operatif Int     @id @default(autoincrement())
+  tindakan            String? @db.VarChar(100)
+}
+
+model tindakanbpjs {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(300)
+}
+
+model triage {
+  idtriage Int     @id @default(autoincrement())
+  triage   String? @db.VarChar(15)
+}
+
+model users {
+  id                         Int              @id @default(autoincrement()) @db.UnsignedInt
+  iddokter                   Int?
+  ip_address                 Bytes            @db.VarBinary(16)
+  username                   String           @db.VarChar(100)
+  password                   String           @db.VarChar(80)
+  salt                       String?          @db.VarChar(40)
+  email                      String           @db.VarChar(100)
+  activation_code            String?          @db.VarChar(40)
+  forgotten_password_code    String?          @db.VarChar(40)
+  forgotten_password_time    Int?             @db.UnsignedInt
+  remember_code              String?          @db.VarChar(40)
+  created_on                 Int              @db.UnsignedInt
+  last_login                 Int?             @db.UnsignedInt
+  active                     Boolean?
+  first_name                 String?          @db.VarChar(50)
+  last_name                  String?          @db.VarChar(50)
+  company                    String?          @db.VarChar(100)
+  phone                      String?          @db.VarChar(20)
+  idruang                    Int?
+  is_notified                Int?
+  api_key                    String?          @db.VarChar(1000)
+  chat_chat_from_chatTousers chat[]           @relation("chat_from_chatTousers")
+  chat_chat_to_chatTousers   chat[]           @relation("chat_to_chatTousers")
+  komplain_balas             komplain_balas[]
+  users_groups               users_groups[]
+
+  @@index([iddokter], map: "iddokter")
+}
+
+model users_groups {
+  id       Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id  Int    @db.UnsignedInt
+  group_id Int    @db.UnsignedMediumInt
+  groups   groups @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_users_groups_groups1")
+  users    users  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_users_groups_users1")
+
+  @@unique([user_id, group_id], map: "uc_users_groups")
+  @@index([group_id], map: "fk_users_groups_groups1_idx")
+  @@index([user_id], map: "fk_users_groups_users1_idx")
+}

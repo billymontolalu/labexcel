@@ -9,6 +9,10 @@
   "author": "Billy Montolalu",
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "^4.1.1",
     "read-excel-file": "^5.4.4"
+  },
+  "devDependencies": {
+    "prisma": "^4.1.1"
   }
 }
