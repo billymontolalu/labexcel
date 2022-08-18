@@ -588,6 +588,7 @@ model nilai_normal {
   min              Float?   @db.Float
   max              Float?   @db.Float
   satuan           String?  @db.VarChar(255)
+  nilai_normal     String?  @db.VarChar(255)
   groupPemeriksaan Int?
   createdAt        DateTime @db.DateTime(0)
   updatedAt        DateTime @db.DateTime(0)
